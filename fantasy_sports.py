@@ -6,9 +6,17 @@ from datetime import datetime
 import os
 
 
-# check date of current player data
-print(os.path.getmtime('fs_player_data.json'))
+fs_data = 'fs_player_data.json'
 
+if not os.path.exists(fs_data):
+    # create empty file if it doesnt exist
+    with open(fs_data) as makefile:
+        pass
+
+# the goal of this whole area is to only pull down data from fs
+# when needed, not sure if this should be once a week, day, or hour
+# check date of current player data
+print(os.path.getmtime(fs_data))
 
 update_player_data = False
 
@@ -52,11 +60,15 @@ if update_player_data:
 
 
 
-    # start processing FS data
+# start processing FS data, this this will be a good oppertunity for classes
+# maybe position class that is then filled with players
 
-    # separate players out by position
+# separate players out by position
 
-    # add in a strength of opponent index? maybe based on DEF ranking
+# add in a strength of opponent index? maybe based on DEF ranking
 
-# get yahoo data
+# get yahoo data, either by scraping or through yahoo api
+
+# compare roster\free agents to fs rankings
+# present options to user to make decisons
 
