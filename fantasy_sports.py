@@ -4,21 +4,33 @@ import requests
 import urllib.request
 from datetime import datetime
 import os
+import time
 
 
 fs_data = 'fs_player_data.json'
+# time in seconds between player data updates
+# currently set to 1 hour
+age_check = 3600
 
+# need a place to store player data locally
 if not os.path.exists(fs_data):
     # create empty file if it doesnt exist
-    with open(fs_data) as makefile:
+    with open(fs_data, 'w') as makefile:
         pass
 
 # the goal of this whole area is to only pull down data from fs
 # when needed, not sure if this should be once a week, day, or hour
-# check date of current player data
-print(os.path.getmtime(fs_data))
+# check age of current player data
+current_time = time.time()
+fs_file_time = os.path.getmtime(fs_data)
+fs_file_age = current_time - fs_file_time
 
-update_player_data = False
+print(f'{current_time} - {fs_file_time} = {fs_file_age}')
+
+if fs_file_age > age_check:
+    update_player_data = True
+else:
+    update_player_data = False
 
 
 # get fantasy shark data
@@ -47,6 +59,7 @@ def get_sharks():
 
 
 def store_data(in_obj, up_file):
+    """Stores a json object to a file"""
     with open(up_file, 'w') as writefile:
         json.dump(in_obj, writefile)
     
