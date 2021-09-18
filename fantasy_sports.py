@@ -1,8 +1,5 @@
-import csv
 import json
 import requests
-import urllib.request
-from datetime import datetime
 import os
 import time
 
@@ -84,7 +81,7 @@ class Position:
         self.players.append(player)
 
     def player_count(self):
-        print(len(self.players))
+        print(f'There are {len(self.players)} players in this position')
 
 
 if update_player_data:
@@ -117,9 +114,7 @@ for player in raw_player_data:
         qb.add_player(player)
 
 
-print("playercount?")
 qb.player_count()
-# separate players out by position
 
 # add in a strength of opponent index? maybe based on DEF ranking
 
