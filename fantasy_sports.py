@@ -6,7 +6,6 @@ from datetime import datetime
 import os
 import time
 
-
 fs_data = 'fs_player_data.json'
 # time in seconds between player data updates
 # currently set to 1 hour
@@ -63,8 +62,33 @@ def store_data(in_obj, up_file):
     with open(up_file, 'w') as writefile:
         json.dump(in_obj, writefile)
     
+class Player:
+    """Holds player information"""
+    def __init__(self, playerdict):
+        self.name = playerdict["Name"]
+        self.rank = playerdict["Rank"]
+        self.pos = playerdict["Pos"]
+        self.team = playerdict["Team"]
+        self.opp = playerdict["Opp"]
+        self.points = playerdict["FantasyPoints"]
+       
+
+
+class Position:
+    """Holds all the players per position"""
+    def __init__(self):
+        # self.position = position
+        self.players = []
+    # maybe a top 5 method can go here
+    def add_player(self, player):
+        self.players.append(player)
+
+    def player_count(self):
+        print(len(self.players))
+
 
 if update_player_data:
+    print("Projection data is too old, downloading updated info")
     # send request to get data
     get_status, fs_json = get_sharks()
 
@@ -76,6 +100,25 @@ if update_player_data:
 # start processing FS data, this this will be a good oppertunity for classes
 # maybe position class that is then filled with players
 
+# instanciate postions classes
+qb = Position()
+rb = Position()
+wr = Position()
+te = Position()
+de = Position()
+pk = Position()
+
+# load player data from json file
+with open(fs_data, 'r') as json_file:
+    raw_player_data = json.load(json_file)
+
+for player in raw_player_data:
+    if player["Pos"] == "QB":
+        qb.add_player(player)
+
+
+print("playercount?")
+qb.player_count()
 # separate players out by position
 
 # add in a strength of opponent index? maybe based on DEF ranking
