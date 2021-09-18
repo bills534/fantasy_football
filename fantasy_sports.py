@@ -21,13 +21,11 @@ current_time = time.time()
 fs_file_time = os.path.getmtime(fs_data)
 fs_file_age = current_time - fs_file_time
 
+print('Current Time - Timestamp of player data = Age of player data')
 print(f'{current_time} - {fs_file_time} = {fs_file_age}')
 
-if fs_file_age > age_check:
-    update_player_data = True
-else:
-    update_player_data = False
-
+# setting if we need to download new data or not
+update_player_data = fs_file_age > age_check
 
 # get fantasy shark data
 def get_sharks():
