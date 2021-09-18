@@ -1,7 +1,7 @@
 import json
-import requests
 import os
 import time
+import player_data
 
 fs_data = 'fs_player_data.json'
 # time in seconds between player data updates
@@ -25,37 +25,9 @@ print('Current Time - Timestamp of player data = Age of player data')
 print(f'{current_time} - {fs_file_time} = {fs_file_age}')
 
 # setting if we need to download new data or not
-update_player_data = fs_file_age > age_check
-
-# get fantasy shark data
-def get_sharks():
-    """Retrives Weekly projection data from fantasy sharks, returns status code, json object"""
-    # https://www.fantasysharks.com/apps/Projections/WeeklyProjections.php?pos=ALL&format=json
-    fs_url = "https://www.fantasysharks.com/apps/Projections/WeeklyProjections.php"
-    querystring = {"pos":"ALL","format":"json"}
-    headers = {"User-Agent": "insomnia/2021.5.3"} # this is to trick the website into thinking im not a python script.
-
-    # this is some kinda magic thing that helps handle cookies? etc...
-    session = requests.Session()
-    session.headers.update(headers) # trick injection
-    response = session.get(url=fs_url, params=querystring)
-    status_code = response.status_code
-    if status_code == 200:
-        print("FantasyShark data retrieved!")
-        json_data = response.json()
-        return status_code, json_data
-    elif status_code == 400:
-        print("400 Error!")
-        return status_code, {}
-    else:
-        print(f"Something else broke, status code: {status_code}")
-        return status_code, {}
+UPDATE_PLAYER_DATA = fs_file_age > age_check
 
 
-def store_data(in_obj, up_file):
-    """Stores a json object to a file"""
-    with open(up_file, 'w') as writefile:
-        json.dump(in_obj, writefile)
     
 class Player:
     """Holds player information"""
@@ -68,51 +40,69 @@ class Player:
         self.points = playerdict["FantasyPoints"]
        
 
-
 class Position:
     """Holds all the players per position"""
     def __init__(self):
-        # self.position = position
-        self.players = []
-    # maybe a top 5 method can go here
+        self.qb = []
+        self.rb = []
+        self.wr = []
+        self.te = []
+
+
     def add_player(self, player):
-        self.players.append(player)
+        if player["Pos"] == 'QB':
+            self.qb.append(player)
+        elif player["Pos"] == 'RB':
+            self.rb.append(player)
+        elif player["Pos"] == 'WR':
+            self.wr.append(player)
+        elif player["Pos"] == 'TE':
+            self.te.append(player)
 
-    def player_count(self):
-        print(f'There are {len(self.players)} players in this position')
+
+    def player_count(self, pos):
+        player_count = 0
+        if pos.lower() == 'qb':
+            player_count = len(self.qb)
+        elif pos.lower() == 'rb':
+            player_count = len(self.rb)
+        elif pos.lower() == 'wr':
+            player_count = len(self.wr)
+        elif pos.lower() == 'te':
+            player_count = len(self.te)
+        else:
+            print(f'{pos} is not a valid positon')
+            return player_count
+        
+        print(f'There are {len(self.qb)} players in the {pos.upper()} position')
+        return player_count
 
 
-if update_player_data:
+if UPDATE_PLAYER_DATA:
     print("Projection data is too old, downloading updated info")
     # send request to get data
-    get_status, fs_json = get_sharks()
+    get_status, fs_json = player_data.get_sharks()
 
     # write the data to file
-    store_data(fs_json, 'fs_player_data.json')
+    player_data.store_data(fs_json, 'fs_player_data.json')
 
 
 
 # start processing FS data, this this will be a good oppertunity for classes
 # maybe position class that is then filled with players
 
-# instanciate postions classes
-qb = Position()
-rb = Position()
-wr = Position()
-te = Position()
-de = Position()
-pk = Position()
+# instantiate postions classes
+allProjected = Position()
 
 # load player data from json file
 with open(fs_data, 'r') as json_file:
     raw_player_data = json.load(json_file)
 
 for player in raw_player_data:
-    if player["Pos"] == "QB":
-        qb.add_player(player)
+    allProjected.add_player(player)
 
-
-qb.player_count()
+qb_count = allProjected.player_count('qb')
+print(qb_count)
 
 # add in a strength of opponent index? maybe based on DEF ranking
 
